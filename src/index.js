@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
 import {PORT} from './config/server.js';
 import ApiRoutes from './routes/index.js';
+import { errorMiddleware } from "./middleware/errorHandler.js";
 
 dotenv.config();
 
@@ -11,6 +12,7 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(errorMiddleware);
 app.use('/api',ApiRoutes);
 
 
