@@ -3,6 +3,7 @@ import userRepository from "../Repository/userRepsitory.js";
 import userRoleRepository from "../Repository/userRole.js";
 import getDataUri from "../utils/dataUri.js";
 import { uploadToCloudinary } from "../api/uploadApi.js";
+import generateToken from "../utils/generateToken.js";
 import bcrypt from "bcrypt";
 
 class userService {
@@ -60,6 +61,32 @@ class userService {
 
         }
         catch (error) {
+            if (error instanceof ApiError) throw error;
+            throw new ApiError(error.message || "Internal Server Error in User Service", 500);
+        }
+    }
+
+    async login(data){
+        try {
+            const user = await this.userRepository.getUserByEmail(data.email);
+            if(!user){
+                throw new ApiError("Invalid email or password",400);
+            }
+            console.log("User fetched for login:", user);
+            console.log(user.password, data.password);
+            const isPasswordValid = await bcrypt.compare(data.password, user.password);
+            if(!isPasswordValid){
+                throw new ApiError("Invalid email or password",400);
+            }
+
+            const token = await generateToken(user);
+
+            return {
+                user,
+                token
+            }
+
+        } catch (error) {
             if (error instanceof ApiError) throw error;
             throw new ApiError(error.message || "Internal Server Error in User Service", 500);
         }
