@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 const env = process.env.NODE_ENV || 'development';
 
 // Import the config using a dynamic import or reading the JSON
-import configData from '../config/config.json' assert { type: 'json' };
+import configData from '../config/config.json' with { type: 'json' };
 const config = configData[env];
 
 const db = {};

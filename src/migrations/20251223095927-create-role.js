@@ -12,7 +12,7 @@ export default {
       },
       name: {
         // Humne decide kiya tha ki hum ise ENUM rakhenge
-        type: Sequelize.ENUM('job_seeker', 'employer'),
+        type: Sequelize.ENUM('job_seeker', 'recruiter'),
         allowNull: false,
         unique: true
       },

@@ -14,7 +14,7 @@ export default (sequelize) => {
   Role.init({
     name: {
       // ENUM constraint: Sirf yahi 3 values allow honge
-      type: DataTypes.ENUM('job_seeker', 'employer'), 
+      type: DataTypes.ENUM('job_seeker', 'recruiter'), 
       allowNull: false,
       unique: {
         msg: "Role name must be unique" // Duplicate role nahi banega

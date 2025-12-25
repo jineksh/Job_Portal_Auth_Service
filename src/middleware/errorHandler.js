@@ -58,6 +58,5 @@ export const errorMiddleware = (err, req, res, next) => {
     message,
     errors,
     timestamp: new Date().toISOString(),
-    ...(stack && { stack })
   });
 };

@@ -12,8 +12,9 @@ const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(errorMiddleware);
+
 app.use('/api',ApiRoutes);
+app.use(errorMiddleware);
 
 
 app.listen(PORT,()=>{
