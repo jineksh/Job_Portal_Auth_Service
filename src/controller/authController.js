@@ -1,5 +1,6 @@
 import userService from '../Service/userService.js';
 import  ApiResponse  from '../utils/apiResponse.js';
+import { ApiError } from '../errors/index.js';
 
 const userServices = new userService();
 
@@ -24,3 +25,30 @@ export const loginUser = async(req,res,next)=>{
         next(error);
     }
 }
+
+export const forgotPassword = async(req,res,next)=>{
+    try {
+        const {email} = req.body;
+        await userServices.forgotPassword(email);
+        return res.status(200).json(new ApiResponse(true, null, "Password reset email sent successfully"));
+    } catch (error) {
+        return next(error);
+    }
+}
+
+export const resetPassword = async(req,res,next)=>{
+    try {
+        const {password} = req.body;
+        const token = req.params.token;
+
+        if(!password){
+            throw new ApiError("Password is required", 400);
+        }
+        await userServices.resetPassword(token,password);
+
+        return res.status(200).json(new ApiResponse(true,null,"Password updated successfull"));
+    } catch (error) {
+        next(error);
+    }
+}
+

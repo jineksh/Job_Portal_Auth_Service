@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import {PORT} from './config/server.js';
 import ApiRoutes from './routes/index.js';
 import { errorMiddleware } from "./middleware/errorHandler.js";
+import emailWorker from './worker/email.js';
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/api',ApiRoutes);
+emailWorker('emailQueue');
+
 app.use(errorMiddleware);
 
 

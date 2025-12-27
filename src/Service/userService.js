@@ -5,6 +5,9 @@ import getDataUri from "../utils/dataUri.js";
 import { uploadToCloudinary } from "../api/uploadApi.js";
 import generateToken from "../utils/generateToken.js";
 import bcrypt from "bcrypt";
+import { forgotPasswordTemplate } from '../utils/emailTemplate.js'
+import emailProducer from "../producers/email.js";
+import redisConnection from "../config/redis.js";
 
 class userService {
 
@@ -66,17 +69,17 @@ class userService {
         }
     }
 
-    async login(data){
+    async login(data) {
         try {
             const user = await this.userRepository.getUserByEmail(data.email);
-            if(!user){
-                throw new ApiError("Invalid email or password",400);
+            if (!user) {
+                throw new ApiError("Invalid email or password", 400);
             }
             console.log("User fetched for login:", user);
             console.log(user.password, data.password);
             const isPasswordValid = await bcrypt.compare(data.password, user.password);
-            if(!isPasswordValid){
-                throw new ApiError("Invalid email or password",400);
+            if (!isPasswordValid) {
+                throw new ApiError("Invalid email or password", 400);
             }
 
             const token = await generateToken(user);
@@ -92,7 +95,60 @@ class userService {
         }
     }
 
+    async forgotPassword(email) {
+        try {
+            const user = await this.userRepository.getUserByEmail(email);
+            if (!user) {
+                throw new ApiError("User with given email does not exist", 400);
+            }
+            const resetToken = await generateToken(user);
 
+            const resetLink = `${process.env.FRONTEND_URL}/reset/${resetToken}`;
+
+            // send email
+            const emailPayload = {
+                to: user.email,
+                subject: "Password Reset Request",
+                html: forgotPasswordTemplate(resetLink)
+            };
+
+            emailProducer(emailPayload);
+
+            await redisConnection.set(`forgot:${resetToken}`, user.email);
+
+            return { message: "Password reset link sent to your email" };
+
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            throw new ApiError(error.message || "Internal Server Error in User Service", 500);
+        }
+    }
+
+    async resetPassword(token, password) {
+        try {
+            const email = await redisConnection.get(`forgot:${token}`);
+
+            if (!email) {
+                throw new ApiError("Invalid or expired token", 400);
+            }
+
+            const updatePassword = this.userRepository.updatePassword(password, email);
+
+            if (!updatePassword) {
+                throw new ApiError("User with given email does not exist", 400);
+            }
+
+            await redisConnection.del(`forgot:${token}`);
+
+            return;
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            throw new ApiError(error.message || "Internal Server Error in User Service", 500);
+        }
+    }
 }
+
+
+
 
 export default userService;
