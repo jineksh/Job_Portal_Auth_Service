@@ -2,7 +2,9 @@ import db from '../models/index.js';
 import { DatabaseError } from '../errors/index.js';
 import bcrypt from "bcrypt";
 
-const { User, Role } = db;
+
+
+const { User, Role, Skill } = db;
 
 class userRepository {
 
@@ -39,10 +41,75 @@ class userRepository {
                 throw new DatabaseError("User not found or password not updated");
             }
 
-            console.log("✅ Password updated successfully");
+            console.log(" Password updated successfully");
             return true;
         } catch (error) {
             throw new DatabaseError('Failed to get user by email: ' + error.message);
+        }
+    }
+
+    async getMyProfile(userData) {
+        try {
+            const { email } = userData;
+
+            const user = await User.findOne({ where: { email} , 
+                include: {
+                    model: Skill,
+                    as: 'skills',
+                    through: {
+                        attributes: []
+                    }
+                }
+            });
+            console.log(user.skills)
+
+            if (!user) {
+                throw new DatabaseError('Failed to get user' + error.message);
+            }
+            console.log("User With Skill", user);
+            return user;
+
+        } catch (error) {
+            console.error('[getMyProfile]', error);
+            if (error instanceof DatabaseError) {
+                throw error;
+            }
+            throw new DatabaseError(
+                'Failed to fetch user profile',
+                error
+            );
+
+        }
+
+    }
+
+    async getUserById(id){
+        try {
+            const user = await User.findByPk(id,{
+                include : {
+                    model : Skill,
+                    as : 'skills',
+                    through : {
+                        attributes : []
+                    }
+                }
+            });
+
+            if(!user){
+                throw new DatabaseError('Failed to get user' + error.message);
+            }
+
+            return user;
+            
+        } catch (error) {
+            console.error('[getUserById]', error);
+            if (error instanceof DatabaseError) {
+                throw error;
+            }
+            throw new DatabaseError(
+                'Failed to fetch user profile',
+                error
+            );
         }
     }
 }

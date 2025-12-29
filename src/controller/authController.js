@@ -1,13 +1,13 @@
-import userService from '../Service/userService.js';
+import authService from '../Service/authService.js';
 import  ApiResponse  from '../utils/apiResponse.js';
 import { ApiError } from '../errors/index.js';
 
-const userServices = new userService();
+const authServices = new authService();
 
 export const registerUser = async (req,res,next)=>{
 
     try {
-        const user = await userServices.createUser(req.body,req.file);
+        const user = await authServices.createUser(req.body,req.file);
         return res.status(201).json(new ApiResponse(true, {user},"User registered successfully"));
 
     } catch (error) {
@@ -19,7 +19,7 @@ export const registerUser = async (req,res,next)=>{
 
 export const loginUser = async(req,res,next)=>{
     try {
-        const {user,token} = await userServices.login(req.body);
+        const {user,token} = await authServices.login(req.body);
         return res.status(200).json(new ApiResponse(true, {user,token},"User logged in successfully"));
     } catch (error) {
         next(error);
@@ -29,7 +29,7 @@ export const loginUser = async(req,res,next)=>{
 export const forgotPassword = async(req,res,next)=>{
     try {
         const {email} = req.body;
-        await userServices.forgotPassword(email);
+        await authServices.forgotPassword(email);
         return res.status(200).json(new ApiResponse(true, null, "Password reset email sent successfully"));
     } catch (error) {
         return next(error);
@@ -44,7 +44,7 @@ export const resetPassword = async(req,res,next)=>{
         if(!password){
             throw new ApiError("Password is required", 400);
         }
-        await userServices.resetPassword(token,password);
+        await authServices.resetPassword(token,password);
 
         return res.status(200).json(new ApiResponse(true,null,"Password updated successfull"));
     } catch (error) {
