@@ -3,6 +3,7 @@ import getDataUri from "../utils/dataUri.js";
 import { uploadToCloudinary } from "../api/uploadApi.js";
 import userRepository from "../Repository/userRepsitory.js";
 import skillRepository from "../Repository/skillRepository.js";
+import { getUniqueHostnamesFromOptions } from "ioredis/built/cluster/util.js";
 class userService {
 
     constructor() {
@@ -45,22 +46,22 @@ class userService {
         }
     }
 
-    async addSkill(email,skillNames){
+    async addSkill(email, skillNames) {
         try {
             const user = await this.userRepository.getUserByEmail(email);
-            if(!user){
+            if (!user) {
                 throw new ApiError("User with given email does not exist", 400);
             }
             const skills = await this.skillRepository.findORCreateSkill(skillNames);
 
-            console.log('userSkills :'+skills);
+            console.log('userSkills :' + skills);
 
             await user.addSkills(skills);
 
             const updatedUser = await this.userRepository.getUserById(user.id);
 
             return updatedUser;
-            
+
         } catch (error) {
             console.error('[UserService:addskill]', error);
             if (error instanceof ApiError) {
@@ -68,6 +69,85 @@ class userService {
             }
             throw new ApiError(
                 'Failed to add Skill',
+                500,
+                error
+            );
+        }
+    }
+
+    async updateUser(data, email) {
+        try {
+            const updateData = {};
+            if (data.name !== undefined) updateData.name = data.name;
+            if (data.bio !== undefined) updateData.bio = data.bio;
+
+            if (Object.keys(updateData).length === 0) {
+                throw new ApiError("Nothing to update", 400);
+            }
+
+            const updatedUser = await this.userRepository.updateUser(updateData, email);
+
+            if (!updatedUser) {
+                throw new ApiError("User not found", 404);
+            }
+
+            return updatedUser;
+
+        } catch (error) {
+            console.error('[UserService:updateUser]', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                'Failed to updateUser',
+                500,
+                error
+            );
+        }
+    }
+
+    async updateResume(email, file) {
+        try {
+            const user = await this.userRepository.getUserByEmail(email);
+
+            if (!user) {
+                throw new ApiError("User not found", 404);
+            }
+
+            if (!file) {
+                throw new ApiError("resume Is required", 404);
+            }
+
+            const fileUri = getDataUri(file);
+
+            const payload = {
+                buffer: fileUri.content,
+                public_id: user.resumePublicId || undefined
+            };
+
+            const updateResponse = await uploadToCloudinary(payload);
+
+            if (!updateResponse || !updateResponse.url) {
+                throw new ApiError("Failed to update resume", 500);
+            }
+
+            user.resumePublicId = updateResponse.public_id;
+            user.resume = updateResponse.url;
+
+            await user.save();
+
+            const userJson = user.toJSON();
+            delete userJson.password;
+
+            return userJson;
+
+        } catch (error) {
+            console.error('[UserService:updateResume]', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                'Failed to update resume',
                 500,
                 error
             );

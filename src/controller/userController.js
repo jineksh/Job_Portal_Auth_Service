@@ -57,3 +57,42 @@ export const addSkills = async (req, res, next) => {
         next(error);
     }
 }
+
+export const updateuser = async(req,res,next)=>{
+    try {
+        const { email } = req.user;
+        const updatedUser = await userServices.updateUser(req.body,email);
+
+         return res.status(200).json(
+            new ApiResponse(
+                200,
+                updatedUser,
+                'User update successfully'
+            )
+        );
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const updateResume = async(req,res,next)=>{
+    try {
+        const { email } = req.user;
+        const file = req.file;
+
+        const updateResume = await userServices.updateResume(email,file);
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                updateResume,
+                'resume update successfully'
+            )
+        );
+
+
+    } catch (error) {
+        next(error);
+    }
+}
