@@ -96,3 +96,38 @@ export const updateResume = async(req,res,next)=>{
         next(error);
     }
 }
+
+export const addProfilePicture = async(req,res,next)=>{
+    try {
+        const file = req.files?.profilePic?.[0];
+        const {email} = req.user;
+        const user = await userServices.addProfilePic(email,file);
+
+        return res.status(200).json(
+            new ApiResponse(
+                200,
+                user,
+                'profile picture add successfully'
+            )
+        );
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const updateProfilePicture = async(req,res,next)=>{
+    try {
+        const file = req.files?.profilePic?.[0];
+        const {email} = req.user;
+        const user = await userServices.updateProfilePic(email,file);
+
+        return res.status(200).json(new ApiResponse(
+                200,
+                user,
+                'profile picture update successfully'
+            ))
+    } catch (error) {
+        next(error);
+    }
+}

@@ -153,6 +153,99 @@ class userService {
             );
         }
     }
+
+    async addProfilePic(email, profilePic) {
+        try {
+            if (!profilePic) {
+                throw new ApiError("profile picture is required", 404);
+            }
+
+            const user = await this.userRepository.getUserByEmail(email);
+            if (!user) {
+                throw new ApiError("User not found", 404);
+            }
+
+            const picUri = getDataUri(profilePic);
+
+            const payload = {
+                buffer: picUri.content
+            }
+
+            const uploadResponse = await uploadToCloudinary(payload);
+
+            if (!uploadResponse || !uploadResponse.url) {
+                throw new ApiError("Failed to add profile picture", 500);
+            }
+
+            user.profilePicPublicId = uploadResponse.public_id;
+            user.profilePic = uploadResponse.url;
+
+            await user.save();
+
+            const userJson = user.toJSON();
+            delete userJson.password;
+
+            return userJson;
+        } catch (error) {
+            console.error('[UserService:addprofilepicture]', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                'Failed to add profile picture',
+                500,
+                error
+            );
+        }
+    }
+
+    async updateProfilePic(email,file){
+        try {
+            if(!file){
+                throw new ApiError("profile picture is required", 404);
+            }
+
+            const user = await this.userRepository.getUserByEmail(email);
+
+            if(!user){
+                throw new ApiError("User not found", 404);
+            }
+
+            const fileuri = getDataUri(file);
+
+            const payload = {
+                buffer : fileuri.content,
+                public_id : user.profilePicPublicId
+            }
+
+            const updateResponse = await uploadToCloudinary(payload);
+
+            if (!updateResponse || !updateResponse.url) {
+                throw new ApiError("Failed to update profile picture", 500);
+            }
+
+            user.profilePicPublicId = updateResponse.public_id;
+            user.profilePic = updateResponse.url;
+
+            await user.save();
+
+            const userJson = user.toJSON();
+            delete userJson.password;
+
+            return user;
+
+        } catch (error) {
+            console.error('[UserService:addprofilepicture]', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                'Failed to add profile picture',
+                500,
+                error
+            );
+        }
+    }
 }
 
 

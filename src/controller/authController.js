@@ -7,7 +7,8 @@ const authServices = new authService();
 export const registerUser = async (req,res,next)=>{
 
     try {
-        const user = await authServices.createUser(req.body,req.file);
+        const file = req.files?.resume?.[0];
+        const user = await authServices.createUser(req.body,file);
         return res.status(201).json(new ApiResponse(true, {user},"User registered successfully"));
 
     } catch (error) {

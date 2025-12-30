@@ -10,9 +10,8 @@ dotenv.config();
 
 const app = express();
 
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ limit: '20mb', extended: true }));
 
 app.use('/api',ApiRoutes);
 emailWorker('emailQueue');
