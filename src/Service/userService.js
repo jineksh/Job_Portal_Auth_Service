@@ -36,9 +36,7 @@ class userService {
             if (!user) {
                 throw new ApiError("User not found", 404);
             }
-            const role = await this.userRoleRepository.getRolebyId(id);
-            console.log(user);
-            return {...user.toJSON(),role : role.name} // Doubt
+            return user; // Doubt
         } catch (error) {
             console.error('[UserService:getUserById]', error);
             if (error instanceof ApiError) {

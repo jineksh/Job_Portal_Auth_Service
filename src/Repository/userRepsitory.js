@@ -21,7 +21,11 @@ class userRepository {
 
     async getUserByEmail(email) {
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({
+                where: { email },
+                include: [{ model: Role,as: 'role' ,attributes: ['name']}]
+            }
+            );
             return user;
         }
         catch (error) {
@@ -119,7 +123,7 @@ class userRepository {
     async updateUser(updateData, email) {
         try {
 
-            if(!email){
+            if (!email) {
                 throw new DatabaseError('email is required');
             }
 

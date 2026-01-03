@@ -85,6 +85,7 @@ class authService {
             if (!user) {
                 throw new ApiError("Invalid email or password", 400);
             }
+            
             console.log("User fetched for login:", user);
             console.log(user.password, data.password);
             const isPasswordValid = await bcrypt.compare(data.password, user.password);
