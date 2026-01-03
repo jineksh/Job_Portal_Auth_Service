@@ -3,12 +3,14 @@ import getDataUri from "../utils/dataUri.js";
 import { uploadToCloudinary } from "../api/uploadApi.js";
 import userRepository from "../Repository/userRepsitory.js";
 import skillRepository from "../Repository/skillRepository.js";
+import userRoleRepository from "../Repository/userRole.js";
 import { getUniqueHostnamesFromOptions } from "ioredis/built/cluster/util.js";
 class userService {
 
     constructor() {
         this.userRepository = new userRepository();
         this.skillRepository = new skillRepository();
+        this.userRoleRepository = new userRoleRepository();
     }
 
     async getMyProfile(userData) {
@@ -31,8 +33,12 @@ class userService {
     async getUserById(id) {
         try {
             const user = await this.userRepository.getUserById(id);
+            if (!user) {
+                throw new ApiError("User not found", 404);
+            }
+            const role = await this.userRoleRepository.getRolebyId(id);
             console.log(user);
-            return user;
+            return {...user.toJSON(),role : role.name} // Doubt
         } catch (error) {
             console.error('[UserService:getUserById]', error);
             if (error instanceof ApiError) {
@@ -199,23 +205,23 @@ class userService {
         }
     }
 
-    async updateProfilePic(email,file){
+    async updateProfilePic(email, file) {
         try {
-            if(!file){
+            if (!file) {
                 throw new ApiError("profile picture is required", 404);
             }
 
             const user = await this.userRepository.getUserByEmail(email);
 
-            if(!user){
+            if (!user) {
                 throw new ApiError("User not found", 404);
             }
 
             const fileuri = getDataUri(file);
 
             const payload = {
-                buffer : fileuri.content,
-                public_id : user.profilePicPublicId
+                buffer: fileuri.content,
+                public_id: user.profilePicPublicId
             }
 
             const updateResponse = await uploadToCloudinary(payload);

@@ -1,16 +1,25 @@
 import { DatabaseError } from "../errors/index.js";
 import db from '../models/index.js';
-const {  Role } = db;
+const { Role } = db;
 
 class userRoleRepository {
 
 
-    async getRolebyName(roleName){
+    async getRolebyName(roleName) {
         try {
-            const role = await Role.findOne({where:{name:roleName}});
+            const role = await Role.findOne({ where: { name: roleName } });
             return role;
         } catch (error) {
-            throw new DatabaseError('Failed to get role by name: '+ error.message);
+            throw new DatabaseError('Failed to get role by name: ' + error.message);
+        }
+    }
+
+    async getRolebyId(id) {
+        try {
+            const role = await Role.findByPk(id);
+            return role;
+        } catch (error) {
+            throw new DatabaseError('Failed to get role by name: ' + error.message);
         }
     }
 
@@ -18,4 +27,4 @@ class userRoleRepository {
 
 }
 
-export default  userRoleRepository;
+export default userRoleRepository;
