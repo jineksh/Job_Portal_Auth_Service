@@ -1,6 +1,6 @@
 import express from 'express'
 import authenticateToken from '../../../middleware/authenticate.js'
-import { getMyProfile,getUserById , addSkills,updateuser,updateResume,addProfilePicture,updateProfilePicture} from '../../../controller/userController.js';
+import { getMyProfile,getUserById , addSkills,updateuser,updateResume,addProfilePicture,updateProfilePicture,applyJob} from '../../../controller/userController.js';
 import upload from '../../../middleware/multer.js';
 import authService from '../../../Service/authService.js';
 
@@ -14,5 +14,6 @@ router.patch('/profile',authenticateToken,updateuser);
 router.patch('/update-resume',authenticateToken,upload,updateResume);
 router.post('/add-profilePic',authenticateToken,upload,addProfilePicture);
 router.patch('/profile-picture',authenticateToken,upload,updateProfilePicture);
+router.post('/apply/:jobid',authenticateToken,applyJob);
 
 export default router;

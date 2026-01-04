@@ -23,7 +23,7 @@ class userRepository {
         try {
             const user = await User.findOne({
                 where: { email },
-                include: [{ model: Role,as: 'role' ,attributes: ['name']}]
+                include: [{ model: Role, as: 'role', attributes: ['name'] }]
             }
             );
             return user;
@@ -93,13 +93,21 @@ class userRepository {
     async getUserById(id) {
         try {
             const user = await User.findByPk(id, {
-                include: {
-                    model: Skill,
-                    as: 'skills',
-                    through: {
-                        attributes: []
+                include: [
+                    {
+                        model: Skill,
+                        as: 'skills',
+                        through: {
+                            attributes: []
+                        }
+                    },
+                    {
+                        model : Role,
+                        as : 'role',
+                        attributes: ['name']
+
                     }
-                }
+                ]
             });
 
             if (!user) {

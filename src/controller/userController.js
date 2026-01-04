@@ -58,12 +58,12 @@ export const addSkills = async (req, res, next) => {
     }
 }
 
-export const updateuser = async(req,res,next)=>{
+export const updateuser = async (req, res, next) => {
     try {
         const { email } = req.user;
-        const updatedUser = await userServices.updateUser(req.body,email);
+        const updatedUser = await userServices.updateUser(req.body, email);
 
-         return res.status(200).json(
+        return res.status(200).json(
             new ApiResponse(
                 200,
                 updatedUser,
@@ -76,12 +76,12 @@ export const updateuser = async(req,res,next)=>{
     }
 }
 
-export const updateResume = async(req,res,next)=>{
+export const updateResume = async (req, res, next) => {
     try {
         const { email } = req.user;
         const file = req.file;
 
-        const updateResume = await userServices.updateResume(email,file);
+        const updateResume = await userServices.updateResume(email, file);
 
         return res.status(200).json(
             new ApiResponse(
@@ -97,11 +97,11 @@ export const updateResume = async(req,res,next)=>{
     }
 }
 
-export const addProfilePicture = async(req,res,next)=>{
+export const addProfilePicture = async (req, res, next) => {
     try {
         const file = req.files?.profilePic?.[0];
-        const {email} = req.user;
-        const user = await userServices.addProfilePic(email,file);
+        const { email } = req.user;
+        const user = await userServices.addProfilePic(email, file);
 
         return res.status(200).json(
             new ApiResponse(
@@ -116,17 +116,36 @@ export const addProfilePicture = async(req,res,next)=>{
     }
 }
 
-export const updateProfilePicture = async(req,res,next)=>{
+export const updateProfilePicture = async (req, res, next) => {
     try {
         const file = req.files?.profilePic?.[0];
-        const {email} = req.user;
-        const user = await userServices.updateProfilePic(email,file);
+        const { email } = req.user;
+        const user = await userServices.updateProfilePic(email, file);
 
         return res.status(200).json(new ApiResponse(
-                200,
-                user,
-                'profile picture update successfully'
-            ))
+            200,
+            user,
+            'profile picture update successfully'
+        ))
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const applyJob = async (req, res, next) => {
+    try {
+        const  token  = req.token;
+        const { id } = req.user;
+        const { jobid } = req.params;
+
+        const response = await userServices.applyForJob(jobid, id, token);
+
+        return res.status(200).json(new ApiResponse(
+            201,
+            response,
+            'Job application submitted successfully'
+        ))
+
     } catch (error) {
         next(error);
     }

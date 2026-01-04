@@ -5,6 +5,7 @@ import userRepository from "../Repository/userRepsitory.js";
 import skillRepository from "../Repository/skillRepository.js";
 import userRoleRepository from "../Repository/userRole.js";
 import { getUniqueHostnamesFromOptions } from "ioredis/built/cluster/util.js";
+import { createApplication } from '../api/applicationApi.js'
 class userService {
 
     constructor() {
@@ -250,6 +251,60 @@ class userService {
             );
         }
     }
+
+    async applyForJob(jobId, userId, token) {
+        try {
+            const user = await this.userRepository.getUserById(userId);
+
+            console.log(token);
+
+            console.log(user);
+
+            if (!user) {
+                throw new ApiError("User with given id does not exist", 400);
+            }
+
+            if(user.role.name !== 'job_seeker'){
+                 throw new ApiError("only job seeker can apply for the job", 400);
+            }
+
+            const resume = user.resume;
+
+            if (!resume) {
+                throw new ApiError('please upload resume in your profile for apply job', 404);
+            }
+
+            const payload = {
+                job_id: jobId,
+                applicant_id: userId,
+                resume: resume
+            }
+
+            const response = await createApplication(payload, token);
+
+            if (!response.success) {
+                // Optional: throw specific error from Job Service
+                throw new ApiError(
+                    response.message || "Failed to create application in Job Service",
+                    response.statusCode || 500
+                );
+            }
+
+            return response.data;
+
+        } catch (error) {
+             console.error('[UserService:applyforJob]', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                'Failed to create your job apply application',
+                500,
+                error
+            );
+        }
+    }
+
 }
 
 
