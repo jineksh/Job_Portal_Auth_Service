@@ -25,3 +25,27 @@ export const createApplication = async (data, token) => {
     throw error;
   }
 };
+
+
+export const getApplications = async (token) => {
+  try {
+    const response = await axios.get(
+      `${process.env.JOB_SERVICE_URL}/me`,
+      {
+        headers: {
+          Authorization: token   // same token forward
+        }
+      }
+    );
+
+    console.log("Get Applications Response:", response.data);
+    return response.data;
+
+  } catch (error) {
+    console.error(
+      "Error fetching applications:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};

@@ -1,6 +1,7 @@
 import ApiResponse from '../utils/apiResponse.js';
 import { ApiError } from '../errors/index.js';
 import userService from '../Service/userService.js';
+import { tryCatch } from 'bullmq';
 
 const userServices = new userService();
 
@@ -134,7 +135,7 @@ export const updateProfilePicture = async (req, res, next) => {
 
 export const applyJob = async (req, res, next) => {
     try {
-        const  token  = req.token;
+        const token = req.token;
         const { id } = req.user;
         const { jobid } = req.params;
 
@@ -144,6 +145,24 @@ export const applyJob = async (req, res, next) => {
             201,
             response,
             'Job application submitted successfully'
+        ))
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const getAllApplications = async (req, res, next) => {
+    try {
+        const token = req.token;
+        const { id } = req.user;
+
+        const response = await userServices.getAllApplication(id,token);
+
+        return res.status(200).json(new ApiResponse(
+            201,
+            response,
+            'all applications fetched successfully'
         ))
 
     } catch (error) {

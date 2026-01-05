@@ -5,7 +5,7 @@ import userRepository from "../Repository/userRepsitory.js";
 import skillRepository from "../Repository/skillRepository.js";
 import userRoleRepository from "../Repository/userRole.js";
 import { getUniqueHostnamesFromOptions } from "ioredis/built/cluster/util.js";
-import { createApplication } from '../api/applicationApi.js'
+import { createApplication, getApplications } from '../api/applicationApi.js'
 class userService {
 
     constructor() {
@@ -264,8 +264,8 @@ class userService {
                 throw new ApiError("User with given id does not exist", 400);
             }
 
-            if(user.role.name !== 'job_seeker'){
-                 throw new ApiError("only job seeker can apply for the job", 400);
+            if (user.role.name !== 'job_seeker') {
+                throw new ApiError("only job seeker can apply for the job", 400);
             }
 
             const resume = user.resume;
@@ -293,12 +293,48 @@ class userService {
             return response.data;
 
         } catch (error) {
-             console.error('[UserService:applyforJob]', error);
+            console.error('[UserService:applyforJob]', error);
             if (error instanceof ApiError) {
                 throw error;
             }
             throw new ApiError(
                 'Failed to create your job apply application',
+                500,
+                error
+            );
+        }
+    }
+
+    async getAllApplication(userId, token) {
+        try {
+
+            const user = await this.userRepository.getUserById(userId);
+            if (!user) {
+                throw new ApiError('User not found', 404);
+            }
+
+            const response = await getApplications(token);
+
+            if (!response.success) {
+                throw new ApiError(
+                    response.message || "Failed to get applications from Job Service",
+                    response.statusCode || 500
+                );
+            }
+
+            if (response.success && response.data.length === 0) {
+                return [];
+            }
+
+            return response.data;
+
+        } catch (error) {
+            console.error('[UserService:getAllApplications]', error);
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            throw new ApiError(
+                'Failed to get your job application',
                 500,
                 error
             );
