@@ -80,7 +80,7 @@ export const updateuser = async (req, res, next) => {
 export const updateResume = async (req, res, next) => {
     try {
         const { email } = req.user;
-        const file = req.file;
+        const file = req.files?.resume?.[0];
 
         const updateResume = await userServices.updateResume(email, file);
 

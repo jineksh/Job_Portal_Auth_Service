@@ -7,6 +7,7 @@ const authServices = new authService();
 export const registerUser = async (req,res,next)=>{
 
     try {
+        console.log("Request Body:", req.body);
         const file = req.files?.resume?.[0];
         const user = await authServices.createUser(req.body,file);
         return res.status(201).json(new ApiResponse(true, {user},"User registered successfully"));
@@ -29,7 +30,11 @@ export const loginUser = async(req,res,next)=>{
 
 export const forgotPassword = async(req,res,next)=>{
     try {
+        console.log("Forgot Password Request Body:", req.body
+
+        );
         const {email} = req.body;
+        console.log("Email for password reset:", email);
         await authServices.forgotPassword(email);
         return res.status(200).json(new ApiResponse(true, null, "Password reset email sent successfully"));
     } catch (error) {

@@ -18,6 +18,7 @@ class authService {
 
     async createUser(data, file) {
         try {
+            console.log(data)
             if (!data.role || !data.name || !data.email || !data.password) {
                 throw new ApiError('All fields are required', 400);
             }
@@ -123,7 +124,7 @@ class authService {
             }
             const resetToken = await generateToken(user);
 
-            const resetLink = `${process.env.FRONTEND_URL}/reset/${resetToken}`;
+            const resetLink = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
             // send email
             const emailPayload = {

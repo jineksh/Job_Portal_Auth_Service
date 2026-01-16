@@ -85,6 +85,7 @@ class userService {
             const updateData = {};
             if (data.name !== undefined) updateData.name = data.name;
             if (data.bio !== undefined) updateData.bio = data.bio;
+            if (data.phoneNum !== undefined) updateData.phoneNum = data.phoneNum;
 
             if (Object.keys(updateData).length === 0) {
                 throw new ApiError("Nothing to update", 400);
