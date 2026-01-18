@@ -60,13 +60,21 @@ class userRepository {
             const user = await User.findOne({
                 where: { email },
                 attributes: { exclude: ['password'] },
-                include: {
-                    model: Skill,
-                    as: 'skills',
-                    through: {
-                        attributes: []
+                include: [
+                    {
+                        model: Skill,
+                        as: 'skills',
+                        through: {
+                            attributes: []
+                        }
+                    },
+                    {
+                        model: Role,
+                        as: 'role',
+                        attributes: ['name']
+
                     }
-                }
+                ]
             });
             console.log(user.skills)
 
@@ -102,8 +110,8 @@ class userRepository {
                         }
                     },
                     {
-                        model : Role,
-                        as : 'role',
+                        model: Role,
+                        as: 'role',
                         attributes: ['name']
 
                     }
